@@ -4,9 +4,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer,UserLoginSerializer
 from django.contrib.auth import authenticate
+from .renderers import  UserRenderer
+
+from rest_framework_simplejwt.views import TokenVerifyView
 
 
 class UserRegistration(APIView):
+    renderer_classes = [UserRenderer]
     def post(self,request,format=None):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
