@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
                 }
     def validate(self, attrs):
         password1 = attrs.get('password')
-        password2 = attrs.pop('password2')
+        password2 = attrs.get('password2')
         if password1 != password2:
             raise serializers.ValidationError("Passwords must match")
         return attrs
