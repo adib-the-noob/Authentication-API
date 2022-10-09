@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import User
-
-
+from django.utils.encoding import smart_str,force_bytes,DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_encode,urlsafe_base64_decode
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(
@@ -65,3 +66,22 @@ class UserChangePasswordSerializer(serializers.Serializer):
         user.set_password(password)
         user.save()
         return attrs
+
+class SendPassowrdResetEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField(min_length=2)
+    class Meta:
+        fields = ['email']
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)
+            uid = urlsafe_base64_encode(force_bytes(user.id))
+            print("Encoded uid: ",uid)
+            token = PasswordResetTokenGenerator().make_token(user)
+            print('Password Reset Token: ',token)
+            link = 'http://localhost:3000/api/user/reset/'+uid+'/'+token
+            print('password reset link: ',link)
+            return attrs
+        else:
+            raise serializers.ValidationError("There is no user with this email")
