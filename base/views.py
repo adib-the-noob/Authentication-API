@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 
 
 
-from .serializers import UserChangePasswordSerializer, UserSerializer, UserLoginSerializer,UserProfileSerializer,SendPassowrdResetEmailSerializer
+from .serializers import UserChangePasswordSerializer, UserSerializer, UserLoginSerializer,UserProfileSerializer,SendPassowrdResetEmailSerializer,UserPasswordResetSerializer
 from .renderers import UserRenderer
 
 # Using JWT
@@ -94,3 +94,13 @@ class SendPasswordResetEmail(APIView):
         if serializer.is_valid(raise_exception=True):
             return Response({'message':'Password Changed Successfully'},status=status.HTTP_200_OK)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserPasswordResetView(APIView):
+  renderer_classes = [UserRenderer]
+  def post(self, request, uid, token, format=None):
+    serializer = UserPasswordResetSerializer(data=request.data, context={'uid':uid, 'token':token})
+    serializer.is_valid(raise_exception=True)
+    return Response({'msg':'Password Reset Successfully'}, status=status.HTTP_200_OK)
+
+        
